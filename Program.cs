@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 
 
-namespace NasaApod
+namespace CaelumServer
 {
 
     using NasaApod.Utilitatem;
