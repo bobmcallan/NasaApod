@@ -1,67 +1,45 @@
-﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 
-using static System.Formats.Asn1.AsnWriter;
+using CaelumApi.Helpers;
+using CaelumApi.Services;
 
-using static System.Net.Mime.MediaTypeNames;
+var builder = WebApplication.CreateBuilder(args);
 
-
-using Microsoft.Extensions.Configuration;
-
-
-using Serilog;
-
-
-namespace CaelumServer
+// configure services
 {
+    var services = builder.Services;
+    var env = builder.Environment;
 
-    using CaelumServer.Utilitatem;
-    using CaelumServer.Utilitatem.Logging;
-
-    public class Program
+    services.AddDbContext<DataContext>();
+    services.AddCors();
+    services.AddControllers().AddJsonOptions(x =>
     {
-        private static ILogger _logger = Log.Logger._AddContext<Program>();
+        // serialize enums as strings in api responses (e.g. Role)
+        x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 
-        private static Scope _scope;
+        // ignore omitted parameters on models to enable optional params (e.g. User update)
+        x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+    services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        private static IConfiguration _config;
-
-        private static string appGuid = "7d3122d5-4a48-41a9-b34f-a4bd5dc2d549";
-
-        static void Main()
-        {
-            IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            
-            IConfigurationRoot configuration = builder.Build();
-
-
-            using (Mutex mutex = new Mutex(false, "Global\\" + appGuid))
-            {
-                if (!mutex.WaitOne(0, false))
-                {
-                    MessageBox.Show($"{AppDomain.CurrentDomain.FriendlyName}.exe already running.");
-                    return;
-                }
-                Application.Run(new Deamon(configuration));
-            }
-        }
-        
-        private static void initialise()
-        {
-            _scope = (Debugger.IsAttached) ? Scope.DEV : Environment.GetEnvironmentVariable("SCOPE")._ToEnum<Scope>(Scope.DEV);
-
-            _config = new ConfigurationBuilder()
-                .AddDefaults()
-                .AddJsonSettings(scope: _scope, mergeArrayHandling: MergeArrayHandling.Replace, defaultSettingsFile: "settings.json")
-                .Build();
-            Environment.SetEnvironmentVariable("SCOPE", _scope.ToString());
-
-            Log.Logger = _config.CreateLogger();
-
-            _logger = Log.Logger._AddContext<Program>();
-
-            var platform = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) ? "Linux" : "Windows";
-
-        }
-
-    }
+    // configure DI for application services
+    services.AddScoped<IUserService, UserService>();
 }
+
+var app = builder.Build();
+
+// configure HTTP request pipeline
+{
+    // global cors policy
+    app.UseCors(x => x
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+    // global error handler
+    app.UseMiddleware<ErrorHandlerMiddleware>();
+
+    app.MapControllers();
+}
+
+app.Run("http://localhost:4000");
