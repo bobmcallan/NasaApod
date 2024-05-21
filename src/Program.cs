@@ -21,7 +21,6 @@ var builder = WebApplication.CreateBuilder(args);
     });
 
     // configure DI for application services
-    // services.AddScoped<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
     services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
 }
 
