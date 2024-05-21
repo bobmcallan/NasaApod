@@ -1,12 +1,13 @@
-namespace CaelumApi.Helpers;
+namespace Helpers;
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 public class ErrorHandlerMiddleware
 {

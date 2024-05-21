@@ -1,4 +1,4 @@
-namespace CaelumApi.Helpers;
+namespace Helpers;
 
 using System.Globalization;
 

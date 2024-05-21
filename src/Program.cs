@@ -1,16 +1,15 @@
 using System.Text.Json.Serialization;
 
-using CaelumApi.Helpers;
-using CaelumApi.Services;
+using Helpers;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// configure services
+// Configure Services
 {
     var services = builder.Services;
     var env = builder.Environment;
 
-    services.AddDbContext<DataContext>();
     services.AddCors();
     services.AddControllers().AddJsonOptions(x =>
     {
@@ -20,23 +19,23 @@ var builder = WebApplication.CreateBuilder(args);
         // ignore omitted parameters on models to enable optional params (e.g. User update)
         x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
-    services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     // configure DI for application services
-    services.AddScoped<IUserService, UserService>();
+    // services.AddScoped<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
+    services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
 }
 
 var app = builder.Build();
 
-// configure HTTP request pipeline
+// Configure HTTP Requests
 {
-    // global cors policy
+    // CORS
     app.UseCors(x => x
         .AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader());
 
-    // global error handler
+    // Error Handler
     app.UseMiddleware<ErrorHandlerMiddleware>();
 
     app.MapControllers();
