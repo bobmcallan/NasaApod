@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace NasaApod.Utilitatem
+namespace CaelumServer.Utilitatem
 {
 
- internal static class Extensions
+    internal static partial class Extensions
     {
         public static bool _IsDefined<T>(string name) where T : struct
         {

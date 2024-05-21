@@ -14,9 +14,10 @@ using Serilog;
 namespace CaelumServer
 {
 
-    using NasaApod.Utilitatem;
+    using CaelumServer.Utilitatem;
+    using CaelumServer.Utilitatem.Logging;
 
-    internal static class Program
+    public class Program
     {
         private static ILogger _logger = Log.Logger._AddContext<Program>();
 

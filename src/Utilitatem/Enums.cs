@@ -1,17 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace NasaApod.Utilitatem
+namespace CaelumServer.Utilitatem
 {
-
-    internal class Constants
-    {
-        public const string PRD = "Production";
-        public const string STG = "Stage";
-        public const string DEV = "Development";
-        public const string TST = "Test";
-        public const string NONE = "None";
-    }
 
     public enum Scope
     {
