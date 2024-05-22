@@ -10,13 +10,17 @@ public class KafkaHandler : IDisposable
 {
     IProducer<byte[], byte[]> kafkaProducer;
 
+    private readonly KafkaConfiguration _kafkaConfiguration;
+
     public KafkaHandler(IOptions<KafkaConfiguration> kafkaConfiguration)
     {
         Guard.Against.Null(kafkaConfiguration, nameof(kafkaConfiguration));
 
+        _kafkaConfiguration = kafkaConfiguration.Value;
+
         var producerConfig = new ProducerConfig
         {
-            BootstrapServers = kafkaConfiguration.Value.BootstrapServers,
+            BootstrapServers = Environment.GetEnvironmentVariable("KAFKA_SERVER") ?? _kafkaConfiguration.BootstrapServers,
             Debug = kafkaConfiguration.Value.Debug
         };
 

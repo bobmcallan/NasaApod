@@ -1,16 +1,22 @@
 services:
   
-  server:
-    container_name: caelum-server
-    image: caelum-server:${TAG-latest}
-    ports:
-      - 4000:4000
-  
   client:
     container_name: caelum-client
     image: caelum-client:${TAG-latest}
     ports:
       - 8080:80
+    depends_on:
+      - server
+
+  server:
+    container_name: caelum-server
+    image: caelum-server:${TAG-latest}
+    ports:
+      - 4000:4000
+    environment:
+      - KAFKA_SERVER=kafka-broker:29092
+    depends_on:
+      - kafka-broker
   
   kafka-broker:
     container_name: kafka-broker

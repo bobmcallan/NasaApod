@@ -17,6 +17,12 @@ public class KafkaBackgroundService : BackgroundService
     {
         _logger = logger;
         _kafkaConfiguration = kafkaConfiguration.Value;
+
+        _kafkaConfiguration.BootstrapServers = Environment.GetEnvironmentVariable("KAFKA_SERVER") ?? _kafkaConfiguration.BootstrapServers;
+
+        _logger.LogInformation($"KAFKA_SERVER -> '{Environment.GetEnvironmentVariable("KAFKA_SERVER")}'");
+        _logger.LogInformation($"BootstrapServers -> '{_kafkaConfiguration.BootstrapServers}'");
+
     }
 
     // private IConsumer<string, string> CreateConsumer(KafkaConfiguration kafkaConfiguration)
