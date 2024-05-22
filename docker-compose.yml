@@ -1,5 +1,5 @@
 services:
   client:
-    image: caelumapi:${TAG-latest}
+    image: caelum-server:${TAG-latest}
     ports:
       - 4000:4000

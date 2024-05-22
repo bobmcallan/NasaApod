@@ -8,7 +8,7 @@ try {
     docker image prune -f
 
     Write-Output "Building"
-    docker build -t caelumapi -f dockerfile .
+    docker build -t caelum-server -f dockerfile .
 
     Write-Output "Compose Up"
     docker compose up -d
