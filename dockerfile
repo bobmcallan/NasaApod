@@ -18,4 +18,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 EXPOSE 4000
-ENTRYPOINT ["dotnet", "CaelumApi.dll"]
+ENTRYPOINT ["dotnet", "CaelumServer.dll"]

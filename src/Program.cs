@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 using Helpers;
@@ -22,6 +24,18 @@ var builder = WebApplication.CreateBuilder(args);
 
     // configure DI for application services
     services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
+
+    // Register KafkaConfiguration
+    services.Configure<KafkaConfiguration>(builder.Configuration.GetSection(nameof(KafkaConfiguration)));
+
+    // Register KafkaConsumer as BackgroundService
+    services.AddSingleton<KafkaBackgroundService>();
+    services.AddSingleton<IHostedService>(p => p.GetService<KafkaBackgroundService>());
+
+    // Kafka Producer
+    // services.AddSingleton<KafkaClientHandle>();
+    // services.AddSingleton<IKafkaProducer, JsonKafkaProducer>();
+
 }
 
 var app = builder.Build();
@@ -40,4 +54,7 @@ var app = builder.Build();
     app.MapControllers();
 }
 
-app.Run("http://0.0.0.0:4000");
+var platform = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "Linux" : "Windows";
+var url = (platform == "Windows") ? "http://0.0.0.0:4100" : "http://0.0.0.0:4000";
+
+app.Run(url);
