@@ -1,6 +1,6 @@
 # Demo Server
 
-An Api server for connecting to the injesting NASA APOD json data and loaing into Kafka. 
+An Api server for connecting to the injesting NASA APOD json data and loading into Kafka. 
 
 https://api.nasa.gov/planetary/apod
  
