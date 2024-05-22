@@ -1,22 +1,37 @@
 ﻿namespace Services;
 
+using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
 using Helpers;
 using Models;
+using Confluent.Kafka;
 
 public class AstronomyPictureOfTheDayService : IAstronomyPictureOfTheDayService
 {
+    private readonly ApodConfiguration _config;
+    private readonly ILogger<AstronomyPictureOfTheDayService> _logger;
+    private readonly IKafkaProducer _producer;
     private readonly HttpClient _httpClient;
+    private Dictionary<string, string> _dictionary;
 
-    public AstronomyPictureOfTheDayService(HttpClient client)
+    public AstronomyPictureOfTheDayService(HttpClient client, IOptions<ApodConfiguration> config, IKafkaProducer producer, ILogger<AstronomyPictureOfTheDayService> logger)
     {
-        client.BaseAddress = new Uri("https://api.nasa.gov/");
+        _config = config.Value;
+
+        client.BaseAddress = new Uri(_config.BaseUrl);
         client.Timeout = new TimeSpan(0, 0, 30);
         client.DefaultRequestHeaders.Clear();
-        client.DefaultRequestHeaders.Accept.Add(
-            new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
         _httpClient = client;
+
+        _logger = logger;
+
+        _producer = producer;
+
+        _dictionary = new Dictionary<string, string>();
+
     }
 
     /// <summary>
@@ -26,8 +41,7 @@ public class AstronomyPictureOfTheDayService : IAstronomyPictureOfTheDayService
     /// <returns></returns>
     public async Task<AstronomyPictureOfTheDay> GetAstronomyPictureOfTheDayAsync()
     {
-        var requestUri = string.Format("https://api.nasa.gov/planetary/apod?api_key={0}", Constants.NASA_API_KEY);
-
+        var requestUri = string.Format(_config.ApodPath, _config.ApiKey);
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -37,8 +51,12 @@ public class AstronomyPictureOfTheDayService : IAstronomyPictureOfTheDayService
             response.EnsureSuccessStatusCode();
 
             var stream = await response.Content.ReadAsStreamAsync();
-            var astronomyPictureOfTheDay = stream.ReadAndDeserializeFromJson<AstronomyPictureOfTheDay>();
-            return astronomyPictureOfTheDay;
+            var apod = stream.ReadAndDeserializeFromJson<AstronomyPictureOfTheDay>();
+
+            // Send to Kafta
+            await _producer.SendJsonAsync(_config.MessageTopic, apod, apod.Title, _dictionary);
+
+            return apod;
         }
     }
 }

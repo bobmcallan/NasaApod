@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
     });
 
     // configure DI for application services
+    services.Configure<ApodConfiguration>(builder.Configuration.GetSection(nameof(ApodConfiguration)));
     services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
 
     // Register KafkaConfiguration
@@ -33,8 +34,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddSingleton<IHostedService>(p => p.GetService<KafkaBackgroundService>());
 
     // Kafka Producer
-    // services.AddSingleton<KafkaClientHandle>();
-    // services.AddSingleton<IKafkaProducer, JsonKafkaProducer>();
+    services.AddSingleton<KafkaHandler>();
+    services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
 }
 

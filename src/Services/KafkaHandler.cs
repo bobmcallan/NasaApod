@@ -6,11 +6,11 @@ using Ardalis.GuardClauses;
 
 using Helpers;
 
-public class KafkaClientHandle : IDisposable
+public class KafkaHandler : IDisposable
 {
     IProducer<byte[], byte[]> kafkaProducer;
 
-    public KafkaClientHandle(IOptions<KafkaConfiguration> kafkaConfiguration)
+    public KafkaHandler(IOptions<KafkaConfiguration> kafkaConfiguration)
     {
         Guard.Against.Null(kafkaConfiguration, nameof(kafkaConfiguration));
 

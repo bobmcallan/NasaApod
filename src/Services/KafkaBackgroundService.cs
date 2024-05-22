@@ -30,11 +30,7 @@ public class KafkaBackgroundService : BackgroundService
             Debug = _kafkaConfiguration.Debug
         };
 
-        _logger.LogInformation($"Creating consumer -> '{consumerConfig.BootstrapServers}'");
-
         var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
-
-        _logger.LogInformation($"Created");
 
         _logger.LogInformation($"Subscribing -> '{_kafkaConfiguration.TopicName}'");
 

@@ -7,18 +7,37 @@ using Confluent.Kafka;
 using Newtonsoft.Json;
 using Ardalis.GuardClauses;
 
-public class JsonKafkaProducer : IKafkaProducer
+public class KafkaProducer : IKafkaProducer
 {
-    private readonly ILogger<JsonKafkaProducer> logger;
-    IProducer<string, string> kafkaHandle;
+    private readonly ILogger<KafkaProducer> _logger;
+    private IProducer<string, string> _kafkaClient;
 
-    public JsonKafkaProducer(KafkaClientHandle handle, ILogger<JsonKafkaProducer> logger)
+    public KafkaProducer(KafkaHandler client, ILogger<KafkaProducer> logger)
     {
-        this.logger = logger;
-        kafkaHandle = new DependentProducerBuilder<string, string>(handle.Handle)
+        _logger = logger;
+
+        _kafkaClient = new DependentProducerBuilder<string, string>(client.Handle)
                 .SetKeySerializer(Serializers.Utf8)
                 .SetValueSerializer(Serializers.Utf8)
             .Build();
+    }
+
+    public async Task SendJsonAsync(string targetTopic, object message, string messageKey, Dictionary<string, string> headers)
+    {
+        Guard.Against.NullOrEmpty(targetTopic, nameof(targetTopic));
+        Guard.Against.Null(message, nameof(message));
+
+        try
+        {
+            var kafkaMessage = CreateMessage(message, headers, messageKey);
+
+            var deliveryResult = await _kafkaClient.ProduceAsync(targetTopic, kafkaMessage);
+            _logger.LogTrace(deliveryResult.Message.Value.ToString());
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error producing for topic {targetTopic}: {e.Message}");
+        }
     }
 
     private Message<string, string> CreateMessage(object value, Dictionary<string, string> headers, string messagekey)
@@ -57,51 +76,11 @@ public class JsonKafkaProducer : IKafkaProducer
         return kafkaMessage;
     }
 
-    public void SendBulkJson<T>(string targetTopic, IEnumerable<T> messages, string messageKey, Dictionary<string, string> headers)
-    {
-        try
-        {
-            Guard.Against.NullOrEmpty(targetTopic, nameof(targetTopic));
-            Guard.Against.Null(messages, nameof(messages));
-
-            foreach (var message in messages)
-            {
-                var jsonMessage = CreateMessage(message, headers, messageKey);
-                kafkaHandle.Produce(targetTopic, jsonMessage, ErrorHandler);
-            }
-
-            // wait for up to X seconds for any inflight messages to be delivered.
-            kafkaHandle.Flush(TimeSpan.FromSeconds(2));
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, $"Error producing for topic {targetTopic}: {e.Message}");
-        }
-    }
-
     protected virtual void ErrorHandler(DeliveryReport<string, string> deliveryReport)
     {
         if (deliveryReport?.Status == PersistenceStatus.NotPersisted)
         {
-            logger.LogError($"Message: {deliveryReport.Message.Value} Error: {deliveryReport.Error} ");
-        }
-    }
-
-    public async Task SendJsonAsync(string targetTopic, object message, string messageKey, Dictionary<string, string> headers)
-    {
-        Guard.Against.NullOrEmpty(targetTopic, nameof(targetTopic));
-        Guard.Against.Null(message, nameof(message));
-
-        try
-        {
-            var kafkaMessage = CreateMessage(message, headers, messageKey);
-
-            var deliveryResult = await kafkaHandle.ProduceAsync(targetTopic, kafkaMessage);
-            logger.LogTrace(deliveryResult.Message.Value.ToString());
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, $"Error producing for topic {targetTopic}: {e.Message}");
+            _logger.LogError($"Message: {deliveryReport.Message.Value} Error: {deliveryReport.Error} ");
         }
     }
 }

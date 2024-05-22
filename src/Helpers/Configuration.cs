@@ -1,4 +1,13 @@
 ﻿namespace Helpers;
+
+public class ApodConfiguration
+{
+    public string BaseUrl { get; set; }
+    public string ApodPath { get; set; }
+    public string ApiKey { get; set; }
+    public string MessageTopic { get; set; }
+}
+
 public class KafkaConfiguration
 {
     public string GroupId { get; set; }
