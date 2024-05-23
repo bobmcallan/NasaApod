@@ -9,5 +9,6 @@ https://api.nasa.gov/planetary/apod
 * Kafka
 
 # ToDo
-1. Backend timer to get new APOD from NASA
-2. Web Socket output for clients to connect and trigger when new APOD is available
+1. Unit Tests
+2. Backend timer to get new APOD from NASA
+3. Web Socket output for clients to connect and trigger when new APOD is available
