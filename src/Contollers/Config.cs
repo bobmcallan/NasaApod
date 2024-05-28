@@ -17,8 +17,6 @@ public class ConfigController : ControllerBase
     {
         _configService = configService;
         _logger = logger;
-
-        _logger.LogInformation("Config Controler constructor complete");
     }
 
     [HttpGet]

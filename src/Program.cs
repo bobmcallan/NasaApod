@@ -28,8 +28,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
 
     services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection(nameof(DatabaseConfiguration)));
-    // services.AddSingleton<IConfigService, ConfigService>();
-    services.AddHttpClient<IConfigService, ConfigService>();
+    services.AddSingleton<IConfigService, ConfigService>();
 
     // Register KafkaConfiguration
     services.Configure<KafkaConfiguration>(builder.Configuration.GetSection(nameof(KafkaConfiguration)));

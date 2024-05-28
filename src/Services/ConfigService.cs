@@ -1,6 +1,7 @@
 namespace Services;
 
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 using System.Globalization;
 using System.Data.SQLite;
 
@@ -25,13 +26,21 @@ public class ConfigService : IConfigService
 
         _sqliteConn = createConnection();
 
-        // createTable();
+        createTable();
 
-        // insertData();
+        insertData();
 
         _logger.LogInformation("ConfigService constructor complete");
 
     }
+
+    public async Task<string> Get()
+    {
+        var _output = await GetConfigAsync();
+
+        return JsonSerializer.Serialize(_output);
+    }
+
     public async Task<IEnumerable<Config>> GetConfigAsync()
     {
         var sql = "SELECT id, source, category, name, value FROM config";
@@ -52,7 +61,7 @@ public class ConfigService : IConfigService
 
         SQLiteConnection sqlite_conn;
 
-        sqlite_conn = new SQLiteConnection("Data Source = ..data\\caelum.db; Version = 3; New = True; Compress = True; ");
+        sqlite_conn = new SQLiteConnection("Data Source = ..\\data\\caelum.db; Version = 3; New = True; Compress = True; ");
         try
         {
             sqlite_conn.Open();
@@ -71,12 +80,13 @@ public class ConfigService : IConfigService
     {
 
 
-        string createSQL = @"CREATE TABLE Config (
-            id          INTEGER     PRIMARY KEY AUTOINCREMENT,
+        string createSQL = @"CREATE TABLE IF NOT EXISTS Config (
+            id          INTEGER         PRIMARY KEY AUTOINCREMENT,
             source      VARCHAR(55), 
             category    VARCHAR(55), 
-            name        TEXT, 
-            value       VARCHAR(255)
+            name        VARCHAR(255), 
+            value       TEXT,
+            UNIQUE ( source, category, name)
         )";
 
         SQLiteCommand sqlite_cmd = _sqliteConn.CreateCommand();
@@ -90,7 +100,14 @@ public class ConfigService : IConfigService
     private void insertData()
     {
 
-        var sql = "INSERT INTO config(source, category, name, value) VALUES (@source, @category, @name, @value)";
+        var sql = @"
+        INSERT OR REPLACE INTO config(id, source, category, name, value) 
+        VALUES (
+            (select id from config where source = @source and category = @category and name = @name),
+            @source, 
+            @category, 
+            @name, 
+            @value)";
 
         foreach (var config in readFromCSV())
         {
