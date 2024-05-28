@@ -7,6 +7,8 @@ using Confluent.Kafka;
 using Newtonsoft.Json;
 using Ardalis.GuardClauses;
 
+using Interfaces;
+
 public class KafkaProducer : IKafkaProducer
 {
     private readonly ILogger<KafkaProducer> _logger;

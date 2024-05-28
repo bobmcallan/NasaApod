@@ -1,0 +1,19 @@
+SOURCE,CATEGORY,NAME,VALUE
+onedigital,division,Bunnings,div-bunnings
+onedigital,division,Kmart,div-kmart
+onedigital,division,All,all
+onedigital,division,Catch,div-catch
+onedigital,division,Target,div-target
+onedigital,division,Officeworks,div-officeworks
+onedigital,purchase-type,All,all
+onedigital,purchase-type,Online,online
+onedigital,purchase-type,Instore,instore
+onedigital,purchase-type,C&C,click_and_collect
+onedigital,transaction-date-max,Max Transaction Date,2024-03-22
+onedigital,transaction-date-min,Min Transaction Date,2022-07-01
+onedigital,transactions-division,div-catch,10772137
+onedigital,transactions-division,div-kmart,43142197
+onedigital,transactions-division,div-officeworks,86155981
+onedigital,transactions-division,div-target,75020920
+onedigital,transactions-division,div-bunnings,331947216
+onedigital,transactions-division,total,547038451

@@ -3,9 +3,9 @@
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
-using Helpers;
+using Interfaces;
 using Models;
-using Confluent.Kafka;
+using Helpers;
 
 public class AstronomyPictureOfTheDayService : IAstronomyPictureOfTheDayService
 {
