@@ -4,6 +4,6 @@ using Models;
 
 public interface IConfigService
 {
-    IEnumerable<Config> GetConfig();
+    Task<IEnumerable<Config>> GetConfigAsync();
 
 }

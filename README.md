@@ -5,6 +5,7 @@ dotnet add package Newtonsoft.Json
 dotnet add package Ardalis.GuardClauses
 dotnet add package sqlite
 dotnet add package CsvHelper
+dotnet add package Dapper
 
 An Api server for connecting to the injesting NASA APOD json data and loading into Kafka. 
 

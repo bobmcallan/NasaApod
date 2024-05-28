@@ -15,3 +15,9 @@ public class KafkaConfiguration
     public string TopicName { get; set; }
     public string BootstrapServers { get; set; }
 }
+
+public class DatabaseConfiguration
+{
+    public string DataLocation { get; set; }
+
+}

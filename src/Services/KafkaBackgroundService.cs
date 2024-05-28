@@ -20,8 +20,8 @@ public class KafkaBackgroundService : BackgroundService
 
         _kafkaConfiguration.BootstrapServers = Environment.GetEnvironmentVariable("KAFKA_SERVER") ?? _kafkaConfiguration.BootstrapServers;
 
-        _logger.LogInformation($"KAFKA_SERVER -> '{Environment.GetEnvironmentVariable("KAFKA_SERVER")}'");
-        _logger.LogInformation($"BootstrapServers -> '{_kafkaConfiguration.BootstrapServers}'");
+        _logger.LogTrace($"KAFKA_SERVER -> '{Environment.GetEnvironmentVariable("KAFKA_SERVER")}'");
+        _logger.LogTrace($"BootstrapServers -> '{_kafkaConfiguration.BootstrapServers}'");
 
     }
 
@@ -38,11 +38,11 @@ public class KafkaBackgroundService : BackgroundService
 
         var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
 
-        _logger.LogInformation($"Subscribing -> '{_kafkaConfiguration.TopicName}'");
+        _logger.LogTrace($"Subscribing -> '{_kafkaConfiguration.TopicName}'");
 
         consumer.Subscribe(_kafkaConfiguration.TopicName);
 
-        _logger.LogInformation($"Subscribed to topic {_kafkaConfiguration.TopicName}");
+        _logger.LogTrace($"Subscribed to topic {_kafkaConfiguration.TopicName}");
 
         return consumer;
     }
@@ -58,7 +58,7 @@ public class KafkaBackgroundService : BackgroundService
 
     protected virtual async Task ConsumeAsync(IConsumer<string, string> consumer, CancellationToken stoppingToken)
     {
-        _logger.LogInformation($"[ConsumeAsync] Name: {consumer.Name}");
+        _logger.LogTrace($"[ConsumeAsync] Name: {consumer.Name}");
 
         Guard.Against.Null(consumer, nameof(consumer));
 

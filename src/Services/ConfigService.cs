@@ -1,52 +1,49 @@
 namespace Services;
 
+using Microsoft.Extensions.Options;
 using System.Globalization;
-using CsvHelper;
 using System.Data.SQLite;
+
+using CsvHelper;
+using Dapper;
 
 using Interfaces;
 using Models;
+using Helpers;
 
 public class ConfigService : IConfigService
 {
 
     private readonly ILogger<ConfigService> _logger;
     private readonly SQLiteConnection _sqliteConn;
+    private readonly DatabaseConfiguration _config;
 
-    private const string _filename = "..data\\config.csv";
-
-
-    public ConfigService(ILogger<ConfigService> logger)
+    public ConfigService(IOptions<DatabaseConfiguration> config, ILogger<ConfigService> logger)
     {
         _logger = logger;
+        _config = config.Value;
 
         _sqliteConn = createConnection();
 
-        createTable();
+        // createTable();
 
-        insertData();
+        // insertData();
+
+        _logger.LogInformation("ConfigService constructor complete");
 
     }
-    public async IEnumerable<Config> GetConfig()
+    public async Task<IEnumerable<Config>> GetConfigAsync()
     {
-        SQLiteDataReader sqlite_datareader;
+        var sql = "SELECT id, source, category, name, value FROM config";
 
-        SQLiteCommand sqlite_cmd = _sqliteConn.CreateCommand();
-        sqlite_cmd.CommandText = "SELECT id, source, category, name, value FROM config"; ;
+        var config = await _sqliteConn.QueryAsync<Config>(sql);
 
-        sqlite_datareader = sqlite_cmd.ExecuteReader();
-        while (sqlite_datareader.Read())
-        {
-            string myreader = sqlite_datareader.GetFieldValue<string>(0);
-            Console.WriteLine(myreader);
-            yield return new Config
-            {
-                Source = source,
-                Category = category,
-                Name = name,
-                Value = value
-            };
-        }
+        return config.ToList();
+
+        // foreach (var item in config)
+        // {
+        //     yield return item;
+        // }
 
     }
 
@@ -55,7 +52,7 @@ public class ConfigService : IConfigService
 
         SQLiteConnection sqlite_conn;
 
-        sqlite_conn = new SQLiteConnection("Data Source = caelum.db; Version = 3; New = True; Compress = True; ");
+        sqlite_conn = new SQLiteConnection("Data Source = ..data\\caelum.db; Version = 3; New = True; Compress = True; ");
         try
         {
             sqlite_conn.Open();
@@ -65,6 +62,8 @@ public class ConfigService : IConfigService
             _logger.LogError(ex, $"Error creating connection : {ex.Message}");
 
         }
+
+        _logger.LogInformation("Database Open");
         return sqlite_conn;
     }
 
@@ -83,6 +82,8 @@ public class ConfigService : IConfigService
         SQLiteCommand sqlite_cmd = _sqliteConn.CreateCommand();
         sqlite_cmd.CommandText = createSQL;
         sqlite_cmd.ExecuteNonQuery();
+
+        _logger.LogInformation("Table Created");
 
     }
 
@@ -104,9 +105,9 @@ public class ConfigService : IConfigService
 
     }
 
-    private static IEnumerable<Config> readFromCSV()
+    private IEnumerable<Config> readFromCSV()
     {
-        using var reader = new StreamReader(_filename);
+        using var reader = new StreamReader(_config.DataLocation);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
         // Skip header of the csv file

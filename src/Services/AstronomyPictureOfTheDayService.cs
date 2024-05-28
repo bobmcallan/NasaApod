@@ -32,6 +32,8 @@ public class AstronomyPictureOfTheDayService : IAstronomyPictureOfTheDayService
 
         _dictionary = new Dictionary<string, string>();
 
+        _logger.LogInformation("AstronomyPictureOfTheDayService constructor complete");
+
     }
 
     /// <summary>

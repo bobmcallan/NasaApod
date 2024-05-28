@@ -2,8 +2,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
-using Helpers;
 using Services;
+using Interfaces;
+using Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,10 @@ var builder = WebApplication.CreateBuilder(args);
     // configure DI for application services
     services.Configure<ApodConfiguration>(builder.Configuration.GetSection(nameof(ApodConfiguration)));
     services.AddHttpClient<IAstronomyPictureOfTheDayService, AstronomyPictureOfTheDayService>();
+
+    services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection(nameof(DatabaseConfiguration)));
+    // services.AddSingleton<IConfigService, ConfigService>();
+    services.AddHttpClient<IConfigService, ConfigService>();
 
     // Register KafkaConfiguration
     services.Configure<KafkaConfiguration>(builder.Configuration.GetSection(nameof(KafkaConfiguration)));
